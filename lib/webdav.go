@@ -95,16 +95,6 @@ func (c *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		u = user
 		zap.L().Info("user authorized", zap.String("username", username))
-	} else {
-		// Even if Auth is disabled, we might want to get
-		// the user from the Basic Auth header. Useful for Caddy
-		// plugin implementation.
-		username, _, ok := r.BasicAuth()
-		if ok {
-			if user, ok := c.Users[username]; ok {
-				u = user
-			}
-		}
 	}
 
 	// Checks for user permissions relatively to this PATH.
