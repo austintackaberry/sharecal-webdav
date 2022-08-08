@@ -1,4 +1,4 @@
-module github.com/hacdias/webdav/v4
+module github.com/austintackaberry/sharecal-webdav/v4
 
 go 1.16
 

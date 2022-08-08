@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hacdias/webdav/v4/lib"
+	"github.com/austintackaberry/sharecal-webdav/v4/lib"
 	"github.com/spf13/pflag"
 	v "github.com/spf13/viper"
 	"golang.org/x/net/webdav"
@@ -129,7 +129,7 @@ func parseUsers(raw []interface{}, c *lib.Config) {
 				},
 				LockSystem: webdav.NewMemLS(),
 			}
-
+			log.Print("adding user", username)
 			c.Users[username] = user
 		}
 	}

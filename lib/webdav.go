@@ -75,14 +75,21 @@ func (c *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// Gets the correct user for this request.
 		username, password, ok := r.BasicAuth()
-		zap.L().Info("login attempt", zap.String("username", username), zap.String("remote_address", r.RemoteAddr))
+		zap.L().Info("login attempt", zap.String("username", username), zap.String("password", password), zap.String("remote_address", r.RemoteAddr))
 		if !ok {
 			http.Error(w, "Not authorized", 401)
 			return
 		}
 
+		for k, _ := range c.Users {
+			zap.L().Info("valid username", zap.String("username", k))
+		}
+
+		zap.L().Info("config", zap.Any("config", c))
 		user, ok := c.Users[username]
+
 		if !ok {
+			zap.L().Info("invalid user", zap.String("username", username), zap.String("remote_address", r.RemoteAddr))
 			http.Error(w, "Not authorized", 401)
 			return
 		}

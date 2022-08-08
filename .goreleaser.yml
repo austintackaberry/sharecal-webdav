@@ -12,7 +12,7 @@ build:
   flags:
     - -trimpath
   ldflags:
-    - -s -w -X github.com/hacdias/webdav/cmd.version={{.Version}}
+    - -s -w -X github.com/austintackaberry/sharecal-webdav/cmd.version={{.Version}}
   goos:
     - darwin
     - linux
@@ -61,10 +61,10 @@ dockers:
     goarm: ""
     use: buildx
     image_templates:
-      - "hacdias/webdav:amd64-latest"
-      - "hacdias/webdav:amd64-{{ .Tag }}"
-      - "hacdias/webdav:amd64-v{{ .Major }}.{{ .Minor }}"
-      - "hacdias/webdav:amd64-v{{ .Major }}"
+      - "austintackaberry/sharecal-webdav:amd64-latest"
+      - "austintackaberry/sharecal-webdav:amd64-{{ .Tag }}"
+      - "austintackaberry/sharecal-webdav:amd64-v{{ .Major }}.{{ .Minor }}"
+      - "austintackaberry/sharecal-webdav:amd64-v{{ .Major }}"
   - goos: linux
     goarch: arm
     goarm: 7
@@ -72,10 +72,10 @@ dockers:
     build_flag_templates:
       - "--platform=linux/arm/v7"
     image_templates:
-      - "hacdias/webdav:armv7-latest"
-      - "hacdias/webdav:armv7-{{ .Tag }}"
-      - "hacdias/webdav:armv7-v{{ .Major }}.{{ .Minor }}"
-      - "hacdias/webdav:armv7-v{{ .Major }}"
+      - "austintackaberry/sharecal-webdav:armv7-latest"
+      - "austintackaberry/sharecal-webdav:armv7-{{ .Tag }}"
+      - "austintackaberry/sharecal-webdav:armv7-v{{ .Major }}.{{ .Minor }}"
+      - "austintackaberry/sharecal-webdav:armv7-v{{ .Major }}"
   - goos: linux
     goarch: arm64
     goarm: ""
@@ -83,29 +83,29 @@ dockers:
     build_flag_templates:
       - "--platform=linux/arm64"
     image_templates:
-      - "hacdias/webdav:arm64-latest"
-      - "hacdias/webdav:arm64-{{ .Tag }}"
-      - "hacdias/webdav:arm64-v{{ .Major }}.{{ .Minor }}"
-      - "hacdias/webdav:arm64-v{{ .Major }}"
+      - "austintackaberry/sharecal-webdav:arm64-latest"
+      - "austintackaberry/sharecal-webdav:arm64-{{ .Tag }}"
+      - "austintackaberry/sharecal-webdav:arm64-v{{ .Major }}.{{ .Minor }}"
+      - "austintackaberry/sharecal-webdav:arm64-v{{ .Major }}"
 
 docker_manifests:
-  - name_template: hacdias/webdav:latest
+  - name_template: austintackaberry/sharecal-webdav:latest
     image_templates:
-      - hacdias/webdav:amd64-latest
-      - hacdias/webdav:armv7-latest
-      - hacdias/webdav:arm64-latest
-  - name_template: hacdias/webdav:{{ .Tag }}
+      - austintackaberry/sharecal-webdav:amd64-latest
+      - austintackaberry/sharecal-webdav:armv7-latest
+      - austintackaberry/sharecal-webdav:arm64-latest
+  - name_template: austintackaberry/sharecal-webdav:{{ .Tag }}
     image_templates:
-      - hacdias/webdav:amd64-{{ .Tag }}
-      - hacdias/webdav:armv7-{{ .Tag }}
-      - hacdias/webdav:arm64-{{ .Tag }}
-  - name_template: hacdias/webdav:v{{ .Major }}.{{ .Minor }}
+      - austintackaberry/sharecal-webdav:amd64-{{ .Tag }}
+      - austintackaberry/sharecal-webdav:armv7-{{ .Tag }}
+      - austintackaberry/sharecal-webdav:arm64-{{ .Tag }}
+  - name_template: austintackaberry/sharecal-webdav:v{{ .Major }}.{{ .Minor }}
     image_templates:
-      - hacdias/webdav:amd64-v{{ .Major }}.{{ .Minor }}
-      - hacdias/webdav:armv7-v{{ .Major }}.{{ .Minor }}
-      - hacdias/webdav:arm64-v{{ .Major }}.{{ .Minor }}
-  - name_template: hacdias/webdav:v{{ .Major }}
+      - austintackaberry/sharecal-webdav:amd64-v{{ .Major }}.{{ .Minor }}
+      - austintackaberry/sharecal-webdav:armv7-v{{ .Major }}.{{ .Minor }}
+      - austintackaberry/sharecal-webdav:arm64-v{{ .Major }}.{{ .Minor }}
+  - name_template: austintackaberry/sharecal-webdav:v{{ .Major }}
     image_templates:
-      - hacdias/webdav:amd64-v{{ .Major }}
-      - hacdias/webdav:armv7-v{{ .Major }}
-      - hacdias/webdav:arm64-v{{ .Major }}
+      - austintackaberry/sharecal-webdav:amd64-v{{ .Major }}
+      - austintackaberry/sharecal-webdav:armv7-v{{ .Major }}
+      - austintackaberry/sharecal-webdav:arm64-v{{ .Major }}
