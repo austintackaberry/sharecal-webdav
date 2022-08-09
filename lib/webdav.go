@@ -3,9 +3,17 @@ package lib
 import (
 	"context"
 	"net/http"
+	"regexp"
 	"strings"
 
+	"fmt"
+	"os"
+
+	"encoding/base64"
+
+	"github.com/nedpals/supabase-go"
 	"go.uber.org/zap"
+	"golang.org/x/net/webdav"
 )
 
 // CorsCfg is the CORS config.
@@ -21,12 +29,13 @@ type CorsCfg struct {
 // Config is the configuration of a WebDAV instance.
 type Config struct {
 	*User
-	Auth      bool
-	Debug     bool
-	NoSniff   bool
-	Cors      CorsCfg
-	Users     map[string]*User
-	LogFormat string
+	Auth           bool
+	Debug          bool
+	NoSniff        bool
+	Cors           CorsCfg
+	Users          map[string]*User
+	LogFormat      string
+	SupabaseClient *supabase.Client
 }
 
 // ServeHTTP determines if the request is for this plugin, and if all prerequisites are met.
@@ -81,26 +90,49 @@ func (c *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for k, _ := range c.Users {
-			zap.L().Info("valid username", zap.String("username", k))
+		if username == "accessToken" {
+			user, err := c.SupabaseClient.Auth.User(context.Background(), password)
+			if err != nil {
+				zap.L().Error("error auth access token", zap.Error(err))
+				http.Error(w, "Not authorized", 401)
+				return
+			}
+			username = user.Email
+		} else {
+			_, err := c.SupabaseClient.Auth.SignIn(context.Background(), supabase.UserCredentials{
+				Email:    username,
+				Password: password,
+			})
+			if err != nil {
+				zap.L().Error("error auth username password", zap.Error(err))
+				http.Error(w, "Not authorized", 401)
+				return
+			}
 		}
+		path := base64.RawURLEncoding.EncodeToString([]byte(username))
+		zap.L().Info("encoded path", zap.String("path", path))
+		_ = os.Mkdir(fmt.Sprintf("%s/%s", c.Scope, path), os.ModePerm)
 
-		zap.L().Info("config", zap.Any("config", c))
-		user, ok := c.Users[username]
-
-		if !ok {
-			zap.L().Info("invalid user", zap.String("username", username), zap.String("remote_address", r.RemoteAddr))
-			http.Error(w, "Not authorized", 401)
-			return
+		u = &User{
+			Scope:  c.Scope,
+			Modify: c.Modify,
+			Rules: []*Rule{
+				{Allow: true,
+					Modify: false,
+					Regexp: regexp.MustCompile(".*")},
+				{Allow: true,
+					Modify: true,
+					Regexp: regexp.MustCompile(fmt.Sprintf("%s/%s.*", c.Scope, path))},
+			},
+			Handler: &webdav.Handler{
+				Prefix: c.Handler.Prefix,
+				FileSystem: WebDavDir{
+					Dir:     webdav.Dir(c.Scope),
+					NoSniff: c.NoSniff,
+				},
+				LockSystem: webdav.NewMemLS(),
+			},
 		}
-
-		if !checkPassword(user.Password, password) {
-			zap.L().Info("invalid password", zap.String("username", username), zap.String("remote_address", r.RemoteAddr))
-			http.Error(w, "Not authorized", 401)
-			return
-		}
-
-		u = user
 		zap.L().Info("user authorized", zap.String("username", username))
 	}
 

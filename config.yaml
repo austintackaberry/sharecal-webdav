@@ -1,0 +1,12 @@
+# Server related settings
+address: 0.0.0.0
+port: 443
+auth: true
+tls: true
+cert: /etc/letsencrypt/live/api.sharecal.io/fullchain.pem
+key: /etc/letsencrypt/live/api.sharecal.io/privkey.pem
+prefix: /dav
+debug: true
+modify: true
+log_format: console
+scope: /home/ec2-user/sharecal-webdav/public
