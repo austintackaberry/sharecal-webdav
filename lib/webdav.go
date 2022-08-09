@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"os"
 
-	"encoding/base64"
-
 	"github.com/nedpals/supabase-go"
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"
@@ -90,16 +88,14 @@ func (c *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		supabaseUrl := os.Getenv("NEXT_PUBLIC_SUPABASE_URL")
+		supabaseKey := os.Getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+		zap.L().Info("Initializing", zap.String("supabaseUrl", supabaseUrl), zap.String("supabaseKey", supabaseKey))
+		supabaseClient := supabase.CreateClient(supabaseUrl, supabaseKey)
 		if username == "accessToken" {
-			user, err := c.SupabaseClient.Auth.User(context.Background(), password)
-			if err != nil {
-				zap.L().Error("error auth access token", zap.Error(err))
-				http.Error(w, "Not authorized", 401)
-				return
-			}
-			username = user.Email
+			supabaseClient = supabase.CreateClient(supabaseUrl, password)
 		} else {
-			_, err := c.SupabaseClient.Auth.SignIn(context.Background(), supabase.UserCredentials{
+			_, err := supabaseClient.Auth.SignIn(context.Background(), supabase.UserCredentials{
 				Email:    username,
 				Password: password,
 			})
@@ -109,8 +105,15 @@ func (c *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		path := base64.RawURLEncoding.EncodeToString([]byte(username))
-		zap.L().Info("encoded path", zap.String("path", path))
+		pathList := strings.Split(r.RequestURI, "/")
+		path := pathList[len(pathList)-2]
+		var results map[string]interface{}
+		err := supabaseClient.DB.From("profiles").Select("*").Single().Eq("public_calendar_id", path).Execute(&results)
+		if err != nil {
+			zap.L().Error("error fetching profile", zap.Error(err))
+			http.Error(w, "Not authorized", 401)
+			return
+		}
 		_ = os.Mkdir(fmt.Sprintf("%s/%s", c.Scope, path), os.ModePerm)
 
 		u = &User{

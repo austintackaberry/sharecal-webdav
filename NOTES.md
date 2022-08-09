@@ -1,6 +1,8 @@
 ## Command to execute
 
-`sudo ./webdav > /dev/null 2>&1 &`
+`sudo -s`
+export env vars
+`./webdav > /dev/null 2>&1 &`
 
 ## Build
 

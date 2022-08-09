@@ -4,10 +4,8 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/nedpals/supabase-go"
 	"github.com/spf13/cobra"
 	v "github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -92,12 +90,6 @@ set WD_CERT.`,
 		zap.L().Info("Listening", zap.String("address", listener.Addr().String()))
 
 		// Starts the server.
-		supabaseUrl := os.Getenv("NEXT_PUBLIC_SUPABASE_URL")
-		supabaseKey := os.Getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
-		zap.L().Info("Initializing", zap.String("supabaseUrl", supabaseUrl), zap.String("supabaseKey", supabaseKey))
-
-		supabaseClient := supabase.CreateClient(supabaseUrl, supabaseKey)
-		cfg.SupabaseClient = supabaseClient
 		if getOptB(flags, "tls") {
 			if err := http.ServeTLS(listener, cfg, getOpt(flags, "cert"), getOpt(flags, "key")); err != nil {
 				zap.L().Fatal("shutting server", zap.Error(err))
