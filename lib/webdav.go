@@ -107,12 +107,25 @@ func (c *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		pathList := strings.Split(r.RequestURI, "/")
 		path := pathList[len(pathList)-2]
+		filename := pathList[len(pathList)-1]
 		var results map[string]interface{}
 		err := supabaseClient.DB.From("profiles").Select("*").Single().Eq("public_calendar_id", path).Execute(&results)
 		if err != nil {
 			zap.L().Error("error fetching profile", zap.Error(err))
 			http.Error(w, "Not authorized", 401)
 			return
+		}
+		zap.L().Info("results", zap.Any("filename", results["filename"]))
+		if results["filename"] == nil {
+			zap.L().Info("updating filename", zap.Any("filename", results["filename"]))
+			updates := map[string]string{"filename": filename}
+			var updateResults interface{}
+			err := supabaseClient.DB.From("profiles").Update(updates).Eq("public_calendar_id", path).Execute(&updateResults)
+			if err != nil {
+				zap.L().Error("error updating profile", zap.Error(err))
+				http.Error(w, "Not authorized", 401)
+				return
+			}
 		}
 		_ = os.Mkdir(fmt.Sprintf("%s/%s", c.Scope, path), os.ModePerm)
 
